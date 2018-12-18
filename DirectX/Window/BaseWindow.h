@@ -2,8 +2,8 @@
 #ifndef UNICODE
 #define UNICODE
 #endif
+
 #include <Windows.h>
-#include <cstdio>
 
 template <class DERIVED_TYPE>
 class BaseWindow
@@ -69,20 +69,6 @@ public:
             &rect,
             dwStyle,
             FALSE);
-
-        wchar_t output[32];
-        swprintf_s(output, TEXT("LEFT: %i\n"), rect.left);
-        OutputDebugString(output);
-        swprintf_s(output, TEXT("RIGHT: %i\n"), rect.right);
-        OutputDebugString(output);
-        swprintf_s(output, TEXT("TOP: %i\n"), rect.top);
-        OutputDebugString(output);
-        swprintf_s(output, TEXT("BOTTOM: %i\n"), rect.bottom);
-        OutputDebugString(output);
-        swprintf_s(output, TEXT("WIDTH: %i\n"), rect.right - rect.left);
-        OutputDebugString(output);
-        swprintf_s(output, TEXT("HEIGHT: %i\n"), rect.bottom - rect.top);
-        OutputDebugString(output);
 
         m_hwnd = CreateWindowEx(
             dwExStyle,
