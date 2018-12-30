@@ -42,14 +42,14 @@ public:
 
     BOOL Create(
         PCWSTR lpWindowName,
-        DWORD dwStyle,
-        DWORD dwExStyle = 0,
-        int x = CW_USEDEFAULT,
-        int y = CW_USEDEFAULT,
-        int nWidth = CW_USEDEFAULT,
-        int nHeight = CW_USEDEFAULT,
-        HWND hWndParent = 0,
-        HMENU hMenu = 0
+        int nWidth,
+        int nHeight,
+        int x,
+        int y,
+        DWORD dwStyle = WS_OVERLAPPEDWINDOW,
+        DWORD dwExStyle = NULL,
+        HWND hWndParent = NULL,
+        HMENU hMenu = NULL
     )
     {
         WNDCLASSEX wc{};
@@ -58,13 +58,15 @@ public:
         wc.lpfnWndProc = DERIVED_TYPE::WindowProc;
         wc.hInstance = GetModuleHandle(NULL);
         wc.lpszClassName = ClassName();
+        wc.style = CS_HREDRAW | CS_VREDRAW;
         wc.cbSize = sizeof(WNDCLASSEX);
         wc.hIcon = NULL;
-        wc.hCursor = LoadCursor(NULL, IDC_CROSS);
+        wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+        wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
 
         RegisterClassEx(&wc);
 
-        RECT rect{ 0, 0, nWidth, nHeight };
+        RECT rect{ x, y, nWidth, nHeight };
         AdjustWindowRect(
             &rect,
             dwStyle,
@@ -77,13 +79,12 @@ public:
             dwStyle,
             x,
             y,
-            nWidth,
-            nHeight,
+            rect.right - rect.left,
+            rect.bottom - rect.top,
             hWndParent,
             hMenu,
             GetModuleHandle(NULL),
-            this
-        );
+            this);
 
         return (m_hwnd ? TRUE : FALSE);
     }

@@ -1,5 +1,8 @@
 #include "Window/MainWindow.h"
 #include "Utils/Utils.h"
+#include "Gfx/Gfx.h"
+
+constexpr UINT kuiWidth = 800, kuiHeight = 600, kuiXpos = 0, kuiYpos = 0;
 
 int WINAPI wWinMain(
     HINSTANCE hInstance,
@@ -9,7 +12,7 @@ int WINAPI wWinMain(
 {
     MainWindow window{ TEXT("NXtNGIN"), hInstance };
 
-    if (!window.Create(TEXT("NXtNGIN - DirectX"), WS_OVERLAPPEDWINDOW))
+    if (!window.Create(TEXT("NXtNGIN - DirectX"), kuiWidth, kuiHeight, kuiXpos, kuiYpos))
     {
         return FALSE;
     }
@@ -24,6 +27,12 @@ int WINAPI wWinMain(
     RECT rect;
     GetWindowRect(window.Get(), &rect);
     Utils::DebugLong(rect.right - rect.left);
+    Utils::DebugLong(rect.bottom - rect.top);
+
+    Gfx gfx;
+    gfx.InitD3D(hInstance, window.Get(), kuiWidth, kuiHeight);
+    gfx.SetRenderTarget();
+    gfx.SetViewport(kuiWidth, kuiHeight);
 
     while (WM_QUIT != msg.message)
     {

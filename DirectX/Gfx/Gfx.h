@@ -2,10 +2,44 @@
 #include <d3d11.h>
 #include <atlbase.h>
 
+#pragma comment(lib, "d3d11.lib")
+//#pragma comment(lib, "dxgi.lib")
+
 class Gfx
 {
+private:
+    CComPtr<ID3D11Device>               m_pDevice;
+    CComPtr<ID3D11DeviceContext>        m_pDeviceContext;
+    CComPtr<IDXGISwapChain>             m_pSwapChain;
+    CComPtr<ID3D11RenderTargetView>     m_pRenderTargetView;
 public:
-    BOOL Init(HINSTANCE hInstance, HWND hWnd, UINT width, UINT height)
+    VOID SetViewport(FLOAT fWidth, FLOAT fHeight)
+    {
+        D3D11_VIEWPORT viewport;
+        ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
+
+        viewport.TopLeftX = 0;
+        viewport.TopLeftY = 0;
+        viewport.Width = fWidth;
+        viewport.Height = fHeight;
+
+        m_pDeviceContext->RSSetViewports(1, &viewport);
+    }
+
+    HRESULT SetRenderTarget()
+    {
+        CComPtr<ID3D11Texture2D> pBackBuffer;
+
+        HRESULT hr = m_pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
+        if (SUCCEEDED(hr))
+            hr = m_pDevice->CreateRenderTargetView(pBackBuffer, NULL, &m_pRenderTargetView);
+        if (SUCCEEDED(hr))
+            m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView.p, NULL);
+
+        return hr;
+    }
+
+    BOOL InitD3D(HINSTANCE hInstance, HWND hWnd, UINT uiWidth, UINT uiWeight)
     {
         HRESULT hr = CoInitializeEx(
             NULL,
@@ -13,38 +47,7 @@ public:
 
         if (SUCCEEDED(hr))
         {
-            D3D11_TEXTURE2D_DESC descDepth;
-            descDepth.MipLevels = 1;
-            descDepth.ArraySize = 1;
-            descDepth.SampleDesc.Count = 1;
-            descDepth.SampleDesc.Quality = 0;
-            descDepth.Usage = D3D11_USAGE_DEFAULT;
-            descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-            descDepth.CPUAccessFlags = 0;
-            descDepth.MiscFlags = 0;
-            hr = pDevice->CreateTexture2D(&descDepth, NULL, &pDepthStencil);
-
-            D3D11_DEPTH_STENCIL_DESC dsDesc;
-
-            dsDesc.DepthEnable = true;
-            dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-            dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
-
-            dsDesc.StencilEnable = true;
-            dsDesc.StencilReadMask = 0xFF;
-            dsDesc.StencilWriteMask = 0xFF;
-
-            dsDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-            dsDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-            dsDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-            dsDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-            dsDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-            dsDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
-            dsDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-            dsDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-            D3D_FEATURE_LEVEL pFeatures[] = {
+            constexpr D3D_FEATURE_LEVEL pFeatures[] = {
                 D3D_FEATURE_LEVEL_11_0,
                 D3D_FEATURE_LEVEL_10_1,
                 D3D_FEATURE_LEVEL_10_0,
@@ -52,46 +55,46 @@ public:
                 D3D_FEATURE_LEVEL_9_2,
                 D3D_FEATURE_LEVEL_9_1,
             };
-
             D3D_FEATURE_LEVEL pFeatureLevels;
 
             DXGI_SWAP_CHAIN_DESC scd;
-            scd.BufferDesc.Width = width;
-            scd.BufferDesc.Height = height;
-            scd.BufferDesc.RefreshRate = { 60 , 1 };
-            scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+            ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
+
             scd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
             scd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-            scd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+
+            scd.BufferDesc.Width = uiWidth;
+            scd.BufferDesc.Height = uiWeight;
+            scd.BufferDesc.RefreshRate = { 60 , 1 };
+
+            scd.BufferCount = 1;
+            scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
             scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
             scd.OutputWindow = hWnd;
+            scd.SampleDesc.Count = 4;
+            scd.Windowed = TRUE;
 
-            hr = D3D11CreateDeviceAndSwapChain(
-                pAdapter,
+            D3D11CreateDeviceAndSwapChain(
+                NULL,
                 D3D_DRIVER_TYPE_HARDWARE,
-                hInstance,
-                D3D11_CREATE_DEVICE_SINGLETHREADED,
+                NULL,
+                D3D11_CREATE_DEVICE_SINGLETHREADED | D3D11_CREATE_DEVICE_DEBUG,
                 pFeatures,
                 sizeof(pFeatures) / sizeof(D3D_FEATURE_LEVEL),
                 D3D11_SDK_VERSION,
                 &scd,
-                &pSwapChain,
-                &pDevice,
+                &m_pSwapChain,
+                &m_pDevice,
                 &pFeatureLevels,
-                &pDeviceContext
-            );
+                &m_pDeviceContext);
+        }
+        else
+        {
+            return FALSE;
         }
 
-        pDeviceContext->OMSetDepthStencilState(pDSState, 1);
         CoUninitialize();
         return SUCCEEDED(hr);
     }
-private:
-    CComPtr<ID3D11Device>               pDevice;
-    CComPtr<IDXGIAdapter>               pAdapter;
-    CComPtr<IDXGISwapChain>             pSwapChain;
-    CComPtr<ID3D11Texture2D>            pDepthStencil;
-    CComPtr<ID3D11DeviceContext>        pDeviceContext;
-    CComPtr<ID3D11DepthStencilState>    pDSState;
-    CComPtr<ID3D11DepthStencilView>     pDSV;
+
 };
