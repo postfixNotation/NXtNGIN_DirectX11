@@ -1,5 +1,6 @@
 #pragma once
 #include <d3d11.h>
+#include <DirectXMath.h>
 #include <atlbase.h>
 
 #pragma comment(lib, "d3d11.lib")
@@ -13,6 +14,17 @@ private:
     CComPtr<IDXGISwapChain>             m_pSwapChain;
     CComPtr<ID3D11RenderTargetView>     m_pRenderTargetView;
 public:
+    VOID RenderFrame()
+    {
+        //const float color[] = { 0.0f, 0.2f, 0.4f, 1.0f };
+        DirectX::XMFLOAT4 color(0.0f, 0.2f, 0.4f, 1.0f);
+        m_pDeviceContext->ClearRenderTargetView(
+            m_pRenderTargetView,
+            &color.x);
+
+        m_pSwapChain->Present(0, 0);
+    }
+
     VOID SetViewport(FLOAT fWidth, FLOAT fHeight)
     {
         D3D11_VIEWPORT viewport;
@@ -70,8 +82,10 @@ public:
             scd.BufferCount = 1;
             scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
             scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+            //scd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
             scd.OutputWindow = hWnd;
-            scd.SampleDesc.Count = 4;
+            scd.SampleDesc.Count = 1;
+            scd.SampleDesc.Quality = 0;
             scd.Windowed = TRUE;
 
             D3D11CreateDeviceAndSwapChain(
@@ -80,7 +94,7 @@ public:
                 NULL,
                 D3D11_CREATE_DEVICE_SINGLETHREADED | D3D11_CREATE_DEVICE_DEBUG,
                 pFeatures,
-                sizeof(pFeatures) / sizeof(D3D_FEATURE_LEVEL),
+                ARRAYSIZE(pFeatures),
                 D3D11_SDK_VERSION,
                 &scd,
                 &m_pSwapChain,
@@ -93,8 +107,11 @@ public:
             return FALSE;
         }
 
-        CoUninitialize();
         return SUCCEEDED(hr);
     }
 
+    ~Gfx()
+    {
+        CoUninitialize();
+    }
 };

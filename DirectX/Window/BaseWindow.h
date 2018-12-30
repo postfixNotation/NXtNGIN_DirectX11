@@ -24,7 +24,7 @@ public:
             pThis = reinterpret_cast<DERIVED_TYPE*>(pCreate->lpCreateParams);
             SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)pThis);
 
-            pThis->m_hwnd = hwnd;
+            pThis->m_hWnd = hwnd;
         }
         else
         {
@@ -72,7 +72,7 @@ public:
             dwStyle,
             FALSE);
 
-        m_hwnd = CreateWindowEx(
+        m_hWnd = CreateWindowEx(
             dwExStyle,
             ClassName(),
             lpWindowName,
@@ -86,16 +86,15 @@ public:
             GetModuleHandle(NULL),
             this);
 
-        return (m_hwnd ? TRUE : FALSE);
+        return (m_hWnd ? TRUE : FALSE);
     }
 
-    HWND Get() const { return m_hwnd; }
+    HWND Get() const { return m_hWnd; }
 
 protected:
     virtual PCWSTR  ClassName() const = 0;
     virtual LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) = 0;
 
-    HWND m_hwnd{ NULL };
-private:
+    HWND m_hWnd{ NULL };
     HINSTANCE m_hInstance;
 };

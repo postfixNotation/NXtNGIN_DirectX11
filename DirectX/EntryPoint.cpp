@@ -47,6 +47,7 @@ int WINAPI wWinMain(
         {
             //renderer->Update();
             //renderer->Render();
+            gfx.RenderFrame();
             //deviceResources->Present();
         }
     }
