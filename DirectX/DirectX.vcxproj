@@ -27,7 +27,7 @@
     <ClCompile Include="window\MainWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders.shader" />
+    <None Include="Shaders\shaders.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Gfx\Gfx.h" />

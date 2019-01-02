@@ -1,8 +1,3 @@
-//// include the basic windows header files and the Direct3D header files
-//#ifndef UNICODE
-//#define UNICODE
-//#endif
-//
 //#include <atlbase.h>
 //#include <d3d11.h>
 //#include <d3dcompiler.h>
@@ -10,54 +5,26 @@
 //#include <dxgi.h>
 //#include <windows.h>
 //#include <comdef.h>
-//
+
 //// include the Direct3D Library file
 //#pragma comment(lib, "d3d11.lib")
 //#pragma comment(lib, "d3dcompiler.lib")
 //#pragma comment(lib, "dxgi.lib")
-//
-//// define the screen resolution
-//#define SCREEN_WIDTH 800
-//#define SCREEN_HEIGHT 600
-//
-//// global declarations
-//CComPtr<IDXGISwapChain> swapchain; // the pointer to the swap chain interface
-//CComPtr<ID3D11Device> dev; // the pointer to our Direct3D device interface
-//CComPtr<ID3D11DeviceContext>
-//devcon; // the pointer to our Direct3D device context
+
 //CComPtr<ID3D11InputLayout> pLayout; // the pointer to the input layout
 //CComPtr<ID3D11VertexShader> pVS; // the pointer to the vertex shader
 //CComPtr<ID3D11PixelShader> pPS; // the pointer to the pixel shader
 //CComPtr<ID3D11Buffer> pVBuffer; // the pointer to the vertex buffer
-//CComPtr<ID3D11RenderTargetView> pBackbuffer; // the pointer to our back buffer
-//
 //// a struct to define a single vertex
 //struct VERTEX
 //{
 //    FLOAT X, Y, Z;
 //    DirectX::XMFLOAT3 Color;
 //};
-//
-//inline void throw_if_fail(HRESULT hr)
-//{
-//    if (FAILED(hr))
-//    {
-//        throw _com_error(hr);
-//    }
-//}
-//
-//// function prototypes
-//void InitD3D(HWND hWnd); // sets up and initializes Direct3D
-//void RenderFrame(void); // renders a single frame
-//void CleanD3D(void); // closes Direct3D and releases memory
+
 //void InitGraphics(void); // creates the shape to render
 //void InitPipeline(void); // loads and prepares the shaders
-//
-//// the WindowProc function prototype
-//LRESULT CALLBACK
-//WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-//
-//// the entry point for any Windows program
+
 //int WINAPI WinMain(HINSTANCE hInstance,
 //    HINSTANCE hPrevInstance,
 //    LPSTR lpCmdLine,
@@ -128,28 +95,7 @@
 //    }
 //    return 0;
 //}
-//
-//// this is the main message handler for the program
-//LRESULT CALLBACK
-//WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-//{
-//    switch (message)
-//    {
-//    case WM_DESTROY:
-//    {
-//        PostQuitMessage(0);
-//        return 0;
-//    } break;
-//    case WM_QUIT:
-//    {
-//        PostQuitMessage(0);
-//        return 0;
-//    } break;
-//    }
-//
-//    return DefWindowProc(hWnd, message, wParam, lParam);
-//}
-//
+
 //// this function initializes and prepares Direct3D for use
 //void InitD3D(HWND hWnd)
 //{
@@ -248,15 +194,7 @@
 //    // switch the back buffer and the front buffer
 //    swapchain->Present(0, 0);
 //}
-//
-//// this is the function that cleans up Direct3D and COM
-//void CleanD3D(void)
-//{
-//    swapchain->SetFullscreenState(FALSE, NULL); // switch to windowed mode
-//
-//    // close and release all existing COM objects
-//}
-//
+
 //// this is the function that creates the shape to render
 //void InitGraphics()
 //{

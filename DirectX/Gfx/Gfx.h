@@ -1,9 +1,16 @@
 #pragma once
+#ifndef UNICODE
+#define UNICODE
+#endif
+
 #include <d3d11.h>
+#include <d3dcompiler.h>
+
 #include <DirectXMath.h>
 #include <atlbase.h>
 
 #pragma comment(lib, "d3d11.lib")
+#pragma comment(lib, "d3dcompiler.lib")
 //#pragma comment(lib, "dxgi.lib")
 
 class Gfx
@@ -13,16 +20,55 @@ private:
     CComPtr<ID3D11DeviceContext>        m_pDeviceContext;
     CComPtr<IDXGISwapChain>             m_pSwapChain;
     CComPtr<ID3D11RenderTargetView>     m_pRenderTargetView;
+
+    CComPtr<ID3DBlob>                   m_pBlobVS;
+    CComPtr<ID3DBlob>                   m_pBlobPS;
+
+    CComPtr<ID3D11VertexShader>         m_pVertexShader;
+    CComPtr<ID3D11PixelShader>          m_pPixelShader;
 public:
+    VOID CompileShaders()
+    {
+        D3DCompileFromFile(
+            TEXT("Shaders/shaders.shader"),
+            NULL,
+            NULL,
+            "VShader",
+            "vs_5_0",
+            0,
+            0,
+            &m_pBlobVS,
+            NULL);
+
+        D3DCompileFromFile(
+            TEXT("Shader/shaders.shader"),
+            NULL,
+            NULL,
+            "PShader",
+            "ps_5_0",
+            0,
+            0,
+            &m_pBlobPS,
+            NULL);
+        return;
+    }
+
     VOID RenderFrame()
     {
         //const float color[] = { 0.0f, 0.2f, 0.4f, 1.0f };
-        DirectX::XMFLOAT4 color(0.0f, 0.2f, 0.4f, 1.0f);
+        static DirectX::XMFLOAT4 color(0.6f, 0.8f, 1.0f, 1.0f);
         m_pDeviceContext->ClearRenderTargetView(
             m_pRenderTargetView,
             &color.x);
 
         m_pSwapChain->Present(0, 0);
+
+        if (color.z <= 1.0f && color.z >= 0.0f)
+        {
+            color.x -= 0.0001f;
+            color.y -= 0.0001f;
+            color.z -= 0.0001f;
+        }
     }
 
     VOID SetViewport(FLOAT fWidth, FLOAT fHeight)
@@ -36,6 +82,7 @@ public:
         viewport.Height = fHeight;
 
         m_pDeviceContext->RSSetViewports(1, &viewport);
+        m_pSwapChain->SetFullscreenState(TRUE, NULL);
     }
 
     HRESULT SetRenderTarget()
@@ -87,6 +134,7 @@ public:
             scd.SampleDesc.Count = 1;
             scd.SampleDesc.Quality = 0;
             scd.Windowed = TRUE;
+            scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
             D3D11CreateDeviceAndSwapChain(
                 NULL,
@@ -112,6 +160,7 @@ public:
 
     ~Gfx()
     {
+        m_pSwapChain->SetFullscreenState(FALSE, NULL);
         CoUninitialize();
     }
 };

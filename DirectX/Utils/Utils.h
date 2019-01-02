@@ -1,9 +1,9 @@
 #pragma once
+
 #ifndef UNICODE
 #define UNICODE
 #endif
 
-#include <Windows.h>
 #include <comdef.h>
 #include <cstdio>
 

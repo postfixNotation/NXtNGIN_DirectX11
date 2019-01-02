@@ -2,7 +2,7 @@
 #include "Utils/Utils.h"
 #include "Gfx/Gfx.h"
 
-constexpr UINT kuiWidth = 800, kuiHeight = 600, kuiXpos = 0, kuiYpos = 0;
+constexpr UINT kuiWidth = 1920, kuiHeight = 1080, kuiXpos = 0, kuiYpos = 0;
 
 int WINAPI wWinMain(
     HINSTANCE hInstance,
@@ -12,7 +12,7 @@ int WINAPI wWinMain(
 {
     MainWindow window{ TEXT("NXtNGIN"), hInstance };
 
-    if (!window.Create(TEXT("NXtNGIN - DirectX"), kuiWidth, kuiHeight, kuiXpos, kuiYpos))
+    if (!window.Create(TEXT("NXtNGIN - DirectX"), kuiWidth / 2, kuiHeight / 2, kuiXpos, kuiYpos))
     {
         return FALSE;
     }
@@ -24,15 +24,12 @@ int WINAPI wWinMain(
     msg.message = WM_NULL;
     PeekMessage(&msg, NULL, 0U, 0U, PM_NOREMOVE);
 
-    RECT rect;
-    GetWindowRect(window.Get(), &rect);
-    Utils::DebugLong(rect.right - rect.left);
-    Utils::DebugLong(rect.bottom - rect.top);
-
     Gfx gfx;
+
     gfx.InitD3D(hInstance, window.Get(), kuiWidth, kuiHeight);
     gfx.SetRenderTarget();
     gfx.SetViewport(kuiWidth, kuiHeight);
+    gfx.CompileShaders();
 
     while (WM_QUIT != msg.message)
     {
@@ -47,7 +44,9 @@ int WINAPI wWinMain(
         {
             //renderer->Update();
             //renderer->Render();
+
             gfx.RenderFrame();
+
             //deviceResources->Present();
         }
     }

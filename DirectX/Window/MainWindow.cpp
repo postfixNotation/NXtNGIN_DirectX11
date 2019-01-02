@@ -18,6 +18,12 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         return 0;
     }
 
+    case WM_QUIT:
+    {
+        PostQuitMessage(0);
+        return 0;
+    }
+
     case WM_CLOSE:
     {
         HMENU hMenu;
@@ -27,6 +33,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             DestroyMenu(hMenu);
         }
         DestroyWindow(m_hWnd);
+        PostQuitMessage(0);
         UnregisterClass(
             ClassName(),
             m_hInstance

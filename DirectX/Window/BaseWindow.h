@@ -62,7 +62,7 @@ public:
         wc.cbSize = sizeof(WNDCLASSEX);
         wc.hIcon = NULL;
         wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-        wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
+        //wc.hbrBackground = (HBRUSH)COLOR_WINDOW; // TURNED OFF FOR FULLSCREEN
 
         RegisterClassEx(&wc);
 

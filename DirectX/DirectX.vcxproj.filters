@@ -28,9 +28,9 @@
     <Filter Include="Quelldateien\Utils">
       <UniqueIdentifier>{f3c9ea84-32f3-4159-978e-c888228b35e2}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="shaders.shader" />
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{9ed9dee1-00ac-43b6-9bfe-891f59c2c409}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Quelle.cpp">
@@ -65,5 +65,10 @@
     <ClInclude Include="Utils\Utils.h">
       <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\shaders.shader">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
