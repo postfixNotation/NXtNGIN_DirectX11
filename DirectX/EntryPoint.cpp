@@ -2,6 +2,8 @@
 #include "Utils/Utils.h"
 #include "Gfx/Gfx.h"
 
+#include <memory>
+
 constexpr UINT kuiWidth = 1920, kuiHeight = 1080, kuiXpos = 0, kuiYpos = 0;
 
 int WINAPI wWinMain(
@@ -24,12 +26,13 @@ int WINAPI wWinMain(
     msg.message = WM_NULL;
     PeekMessage(&msg, NULL, 0U, 0U, PM_NOREMOVE);
 
-    Gfx gfx;
+    std::unique_ptr<Gfx> pGfx = std::make_unique<Gfx>();
 
-    gfx.InitD3D(hInstance, window.Get(), kuiWidth, kuiHeight);
-    gfx.SetRenderTarget();
-    gfx.SetViewport(kuiWidth, kuiHeight);
-    gfx.CompileShaders();
+    pGfx->InitD3D(hInstance, window.Get(), kuiWidth, kuiHeight);
+    pGfx->SetRenderTarget();
+    pGfx->SetViewport(kuiWidth, kuiHeight);
+    pGfx->InitShaders();
+    pGfx->LoadVertices();
 
     while (WM_QUIT != msg.message)
     {
@@ -45,7 +48,7 @@ int WINAPI wWinMain(
             //renderer->Update();
             //renderer->Render();
 
-            gfx.RenderFrame();
+            pGfx->RenderFrame();
 
             //deviceResources->Present();
         }

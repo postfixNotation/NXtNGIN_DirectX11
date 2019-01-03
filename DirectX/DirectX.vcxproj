@@ -31,6 +31,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Gfx\Gfx.h" />
+    <ClInclude Include="Gfx\Vertex.h" />
     <ClInclude Include="Utils\Utils.h" />
     <ClInclude Include="window\BaseWindow.h" />
     <ClInclude Include="window\MainWindow.h" />

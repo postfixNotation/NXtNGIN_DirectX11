@@ -9,6 +9,10 @@
 #include <DirectXMath.h>
 #include <atlbase.h>
 
+#include <vector>
+
+#include "Vertex.h"
+
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 //#pragma comment(lib, "dxgi.lib")
@@ -21,14 +25,38 @@ private:
     CComPtr<IDXGISwapChain>             m_pSwapChain;
     CComPtr<ID3D11RenderTargetView>     m_pRenderTargetView;
 
-    CComPtr<ID3DBlob>                   m_pBlobVS;
-    CComPtr<ID3DBlob>                   m_pBlobPS;
-
     CComPtr<ID3D11VertexShader>         m_pVertexShader;
     CComPtr<ID3D11PixelShader>          m_pPixelShader;
+
+    CComPtr<ID3D11Buffer>               m_pVBuffer;
 public:
-    VOID CompileShaders()
+    VOID LoadVertices()
     {
+        std::vector<VERTEX> vertices = {
+            { DirectX::XMFLOAT3(0.0f, 0.5f, 0.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) },
+            { DirectX::XMFLOAT3(0.45f, -0.5f, 0.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
+            { DirectX::XMFLOAT3(-0.45f, -0.5f, 0.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) }
+        };
+
+        D3D11_BUFFER_DESC buffer_desc;
+
+        ZeroMemory(&buffer_desc, sizeof(D3D11_BUFFER_DESC));
+
+        buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
+        buffer_desc.ByteWidth = static_cast<UINT>(vertices.size()) * sizeof(VERTEX);
+        buffer_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+        buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+        m_pDevice->CreateBuffer(
+            &buffer_desc,
+            NULL,
+            &m_pVBuffer);
+    }
+
+    VOID InitShaders()
+    {
+        CComPtr<ID3DBlob> pBlobVS, pBlobPS;
+
         D3DCompileFromFile(
             TEXT("Shaders/shaders.shader"),
             NULL,
@@ -37,19 +65,32 @@ public:
             "vs_5_0",
             0,
             0,
-            &m_pBlobVS,
+            &pBlobVS,
             NULL);
 
         D3DCompileFromFile(
-            TEXT("Shader/shaders.shader"),
+            TEXT("Shaders/shaders.shader"),
             NULL,
             NULL,
             "PShader",
             "ps_5_0",
             0,
             0,
-            &m_pBlobPS,
+            &pBlobPS,
             NULL);
+
+        m_pDevice->CreateVertexShader(
+            pBlobVS->GetBufferPointer(),
+            pBlobVS->GetBufferSize(),
+            NULL,
+            &m_pVertexShader);
+
+        m_pDevice->CreatePixelShader(
+            pBlobPS->GetBufferPointer(),
+            pBlobPS->GetBufferSize(),
+            NULL,
+            &m_pPixelShader);
+
         return;
     }
 
