@@ -19,17 +19,20 @@
     <Filter Include="Quelldateien\Window">
       <UniqueIdentifier>{d491c049-829a-47fb-b2df-9527e22e0224}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Gfx">
-      <UniqueIdentifier>{a89cce8e-6135-429b-adef-78343567610a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Headerdateien\Utils">
       <UniqueIdentifier>{ee16e6b5-fdd8-4eed-ab85-002701ffe843}</UniqueIdentifier>
     </Filter>
     <Filter Include="Quelldateien\Utils">
       <UniqueIdentifier>{f3c9ea84-32f3-4159-978e-c888228b35e2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shaders">
+    <Filter Include="Ressourcendateien\Shaders">
       <UniqueIdentifier>{9ed9dee1-00ac-43b6-9bfe-891f59c2c409}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Gfx">
+      <UniqueIdentifier>{a89cce8e-6135-429b-adef-78343567610a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Gfx">
+      <UniqueIdentifier>{be24a882-cd23-4746-ad74-cae6f0c4e408}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -43,7 +46,7 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="Gfx\Gfx.cpp">
-      <Filter>Gfx</Filter>
+      <Filter>Quelldateien\Gfx</Filter>
     </ClCompile>
     <ClCompile Include="window\MainWindow.cpp">
       <Filter>Quelldateien\Window</Filter>
@@ -59,19 +62,22 @@
     <ClInclude Include="window\MainWindow.h">
       <Filter>Headerdateien\Window</Filter>
     </ClInclude>
-    <ClInclude Include="Gfx\Gfx.h">
-      <Filter>Gfx</Filter>
-    </ClInclude>
     <ClInclude Include="Utils\Utils.h">
       <Filter>Headerdateien\Utils</Filter>
     </ClInclude>
     <ClInclude Include="Gfx\Vertex.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="Gfx\Gfx.h">
+      <Filter>Headerdateien\Gfx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\shaders.shader">
-      <Filter>Shaders</Filter>
-    </None>
+    <FxCompile Include="Shaders\PixelShader.hlsl">
+      <Filter>Ressourcendateien\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\VertexShader.hlsl">
+      <Filter>Ressourcendateien\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

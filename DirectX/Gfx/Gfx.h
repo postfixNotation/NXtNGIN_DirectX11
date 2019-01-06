@@ -29,7 +29,38 @@ private:
     CComPtr<ID3D11PixelShader>          m_pPixelShader;
 
     CComPtr<ID3D11Buffer>               m_pVBuffer;
+    CComPtr<ID3D11InputLayout>          m_pInputLayout;
+
+    CComPtr<ID3DBlob>                   m_pBlobVS, m_pBlobPS;
+
 public:
+    VOID Draw()
+    {
+        UINT uVertexSize = sizeof(VERTEX);
+        UINT uOffset = 0;
+        m_pDeviceContext->IASetVertexBuffers(
+            0,
+            1,
+            &m_pVBuffer,
+            &uVertexSize,
+            &uOffset);
+    }
+    VOID InitInputLayout()
+    {
+        std::vector<D3D11_INPUT_ELEMENT_DESC> inputElementDesc = {
+            { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+            { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+            //{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+        };
+
+        m_pDevice->CreateInputLayout(
+            inputElementDesc.data(),
+            2,
+            m_pBlobVS->GetBufferPointer(),
+            m_pBlobVS->GetBufferSize(),
+            &m_pInputLayout);
+    }
+
     VOID LoadVertices()
     {
         std::vector<VERTEX> vertices = {
@@ -51,45 +82,65 @@ public:
             &buffer_desc,
             NULL,
             &m_pVBuffer);
+
+        D3D11_MAPPED_SUBRESOURCE mapped_subres;
+
+        m_pDeviceContext->Map(
+            m_pVBuffer,
+            NULL,
+            D3D11_MAP_WRITE_DISCARD,
+            NULL,
+            &mapped_subres);
+
+        memcpy(mapped_subres.pData,
+            vertices.data(),
+            vertices.size() * sizeof(VERTEX));
+
+        m_pDeviceContext->Unmap(
+            m_pVBuffer,
+            NULL);
     }
 
     VOID InitShaders()
     {
-        CComPtr<ID3DBlob> pBlobVS, pBlobPS;
-
         D3DCompileFromFile(
-            TEXT("Shaders/shaders.shader"),
+            TEXT("Shaders/VertexShader.hlsl"),
             NULL,
             NULL,
             "VShader",
             "vs_5_0",
             0,
             0,
-            &pBlobVS,
+            &m_pBlobVS,
             NULL);
 
         D3DCompileFromFile(
-            TEXT("Shaders/shaders.shader"),
+            TEXT("Shaders/PixelShader.hlsl"),
             NULL,
             NULL,
             "PShader",
             "ps_5_0",
             0,
             0,
-            &pBlobPS,
+            &m_pBlobPS,
             NULL);
 
         m_pDevice->CreateVertexShader(
-            pBlobVS->GetBufferPointer(),
-            pBlobVS->GetBufferSize(),
+            m_pBlobVS->GetBufferPointer(),
+            m_pBlobVS->GetBufferSize(),
             NULL,
             &m_pVertexShader);
 
         m_pDevice->CreatePixelShader(
-            pBlobPS->GetBufferPointer(),
-            pBlobPS->GetBufferSize(),
+            m_pBlobPS->GetBufferPointer(),
+            m_pBlobPS->GetBufferSize(),
             NULL,
             &m_pPixelShader);
+
+        m_pDeviceContext->VSSetShader(m_pVertexShader, NULL, 0);
+        m_pDeviceContext->PSSetShader(m_pPixelShader, NULL, 0);
+
+        m_pDeviceContext->IASetInputLayout(m_pInputLayout);
 
         return;
     }
@@ -123,7 +174,7 @@ public:
         viewport.Height = fHeight;
 
         m_pDeviceContext->RSSetViewports(1, &viewport);
-        m_pSwapChain->SetFullscreenState(TRUE, NULL);
+        //m_pSwapChain->SetFullscreenState(TRUE, NULL);
     }
 
     HRESULT SetRenderTarget()

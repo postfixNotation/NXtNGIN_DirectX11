@@ -13,7 +13,7 @@ int WINAPI wWinMain(
     int nCmdShow)
 {
     MainWindow window{ TEXT("NXtNGIN"), hInstance };
-
+    //DEBUGOUT("TEST OUTPUT");
     if (!window.Create(TEXT("NXtNGIN - DirectX"), kuiWidth / 2, kuiHeight / 2, kuiXpos, kuiYpos))
     {
         return FALSE;
@@ -33,6 +33,8 @@ int WINAPI wWinMain(
     pGfx->SetViewport(kuiWidth, kuiHeight);
     pGfx->InitShaders();
     pGfx->LoadVertices();
+    pGfx->InitInputLayout();
+    pGfx->Draw();
 
     while (WM_QUIT != msg.message)
     {

@@ -7,6 +7,12 @@
 #include <comdef.h>
 #include <cstdio>
 
+#define DEBUGOUT(X) MessageBox( \
+    NULL, \
+    TEXT(X), \
+    TEXT("DEBUG MESSAGE"), \
+    MB_OK)
+
 namespace Utils
 {
     inline void throw_if_fail(HRESULT hr)
