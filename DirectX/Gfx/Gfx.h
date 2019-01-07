@@ -5,17 +5,13 @@
 
 #include <d3d11.h>
 #include <d3dcompiler.h>
-
-#include <DirectXMath.h>
 #include <atlbase.h>
-
 #include <vector>
 
 #include "Vertex.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
-//#pragma comment(lib, "dxgi.lib")
 
 class Gfx
 {
@@ -24,54 +20,58 @@ private:
     CComPtr<ID3D11DeviceContext>        m_pDeviceContext;
     CComPtr<IDXGISwapChain>             m_pSwapChain;
     CComPtr<ID3D11RenderTargetView>     m_pRenderTargetView;
-
     CComPtr<ID3D11VertexShader>         m_pVertexShader;
     CComPtr<ID3D11PixelShader>          m_pPixelShader;
-
     CComPtr<ID3D11Buffer>               m_pVBuffer;
     CComPtr<ID3D11InputLayout>          m_pInputLayout;
-
     CComPtr<ID3DBlob>                   m_pBlobVS, m_pBlobPS;
 
 public:
     VOID Draw()
     {
+        static DirectX::XMFLOAT4 color(0.6f, 0.8f, 1.0f, 1.0f);
+        m_pDeviceContext->ClearRenderTargetView(
+            m_pRenderTargetView,
+            &color.x);
+
+        UINT uVertexSize = sizeof(VERTEX);
+        UINT uOffset = 0;
+
+        m_pDeviceContext->IASetVertexBuffers(
+            0,
+            1,
+            &m_pVBuffer.p,
+            &uVertexSize,
+            &uOffset);
+
+        m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         m_pDeviceContext->Draw(3, 0);
         m_pSwapChain->Present(0, 0);
     }
+
     VOID InitInputLayout()
     {
-        std::vector<D3D11_INPUT_ELEMENT_DESC> inputElementDesc = {
+        D3D11_INPUT_ELEMENT_DESC inputElementDesc[] = {
             { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-            { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-            //{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+            { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
         };
 
         m_pDevice->CreateInputLayout(
-            inputElementDesc.data(),
+            inputElementDesc,
             2,
             m_pBlobVS->GetBufferPointer(),
             m_pBlobVS->GetBufferSize(),
             &m_pInputLayout);
 
-        UINT uVertexSize = sizeof(VERTEX);
-        UINT uOffset = 0;
-        m_pDeviceContext->IASetVertexBuffers(
-            0,
-            1,
-            &m_pVBuffer,
-            &uVertexSize,
-            &uOffset);
-
-        m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        m_pDeviceContext->IASetInputLayout(m_pInputLayout);
     }
 
     VOID LoadVertices()
     {
         std::vector<VERTEX> vertices = {
-            { DirectX::XMFLOAT3(0.0f, 0.5f, 0.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) },
-            { DirectX::XMFLOAT3(0.45f, -0.5f, 0.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-            { DirectX::XMFLOAT3(-0.45f, -0.5f, 0.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) }
+            {DirectX::XMFLOAT3(0.0f, 0.5f, 0.0f), DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f)},
+            {DirectX::XMFLOAT3(0.45f, -0.5, 0.0f), DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f)},
+            {DirectX::XMFLOAT3(-0.45f, -0.5f, 0.0f), DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f)}
         };
 
         D3D11_BUFFER_DESC buffer_desc;
@@ -97,7 +97,8 @@ public:
             NULL,
             &mapped_subres);
 
-        memcpy(mapped_subres.pData,
+        memcpy(
+            mapped_subres.pData,
             vertices.data(),
             vertices.size() * sizeof(VERTEX));
 
@@ -113,7 +114,7 @@ public:
             NULL,
             NULL,
             "VShader",
-            "vs_5_0",
+            "vs_4_0",
             0,
             0,
             &m_pBlobVS,
@@ -124,7 +125,7 @@ public:
             NULL,
             NULL,
             "PShader",
-            "ps_5_0",
+            "ps_4_0",
             0,
             0,
             &m_pBlobPS,
@@ -148,24 +149,6 @@ public:
         m_pDeviceContext->IASetInputLayout(m_pInputLayout);
 
         return;
-    }
-
-    VOID ClearBackground()
-    {
-        //const float color[] = { 0.0f, 0.2f, 0.4f, 1.0f };
-        static DirectX::XMFLOAT4 color(0.6f, 0.8f, 1.0f, 1.0f);
-        m_pDeviceContext->ClearRenderTargetView(
-            m_pRenderTargetView,
-            &color.x);
-
-        m_pSwapChain->Present(0, 0);
-
-        if (color.z <= 1.0f && color.z >= 0.0f)
-        {
-            color.x -= 0.0001f;
-            color.y -= 0.0001f;
-            color.z -= 0.0001f;
-        }
     }
 
     VOID SetViewport(FLOAT fWidth, FLOAT fHeight)
