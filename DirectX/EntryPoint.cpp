@@ -34,7 +34,7 @@ int WINAPI wWinMain(
     pGfx->InitShaders();
     pGfx->LoadVertices();
     pGfx->InitInputLayout();
-    pGfx->Draw();
+    pGfx->ClearBackground();
 
     while (WM_QUIT != msg.message)
     {
@@ -49,8 +49,7 @@ int WINAPI wWinMain(
         {
             //renderer->Update();
             //renderer->Render();
-
-            pGfx->RenderFrame();
+            pGfx->Draw();
 
             //deviceResources->Present();
         }

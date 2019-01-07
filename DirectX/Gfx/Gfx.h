@@ -36,14 +36,8 @@ private:
 public:
     VOID Draw()
     {
-        UINT uVertexSize = sizeof(VERTEX);
-        UINT uOffset = 0;
-        m_pDeviceContext->IASetVertexBuffers(
-            0,
-            1,
-            &m_pVBuffer,
-            &uVertexSize,
-            &uOffset);
+        m_pDeviceContext->Draw(3, 0);
+        m_pSwapChain->Present(0, 0);
     }
     VOID InitInputLayout()
     {
@@ -59,6 +53,17 @@ public:
             m_pBlobVS->GetBufferPointer(),
             m_pBlobVS->GetBufferSize(),
             &m_pInputLayout);
+
+        UINT uVertexSize = sizeof(VERTEX);
+        UINT uOffset = 0;
+        m_pDeviceContext->IASetVertexBuffers(
+            0,
+            1,
+            &m_pVBuffer,
+            &uVertexSize,
+            &uOffset);
+
+        m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     }
 
     VOID LoadVertices()
@@ -145,7 +150,7 @@ public:
         return;
     }
 
-    VOID RenderFrame()
+    VOID ClearBackground()
     {
         //const float color[] = { 0.0f, 0.2f, 0.4f, 1.0f };
         static DirectX::XMFLOAT4 color(0.6f, 0.8f, 1.0f, 1.0f);
