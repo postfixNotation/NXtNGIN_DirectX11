@@ -6,7 +6,9 @@
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <atlbase.h>
+
 #include <vector>
+#include <fstream>
 
 #include "Vertex.h"
 
@@ -24,8 +26,6 @@ private:
     CComPtr<ID3D11PixelShader>          m_pPixelShader;
     CComPtr<ID3D11Buffer>               m_pVBuffer;
     CComPtr<ID3D11InputLayout>          m_pInputLayout;
-    CComPtr<ID3DBlob>                   m_pBlobVS, m_pBlobPS;
-
 public:
     VOID Draw()
     {
@@ -45,33 +45,20 @@ public:
             &uOffset);
 
         m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        m_pDeviceContext->Draw(3, 0);
+        m_pDeviceContext->Draw(6, 0);
         m_pSwapChain->Present(0, 0);
-    }
-
-    VOID InitInputLayout()
-    {
-        D3D11_INPUT_ELEMENT_DESC inputElementDesc[] = {
-            { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-            { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-        };
-
-        m_pDevice->CreateInputLayout(
-            inputElementDesc,
-            2,
-            m_pBlobVS->GetBufferPointer(),
-            m_pBlobVS->GetBufferSize(),
-            &m_pInputLayout);
-
-        m_pDeviceContext->IASetInputLayout(m_pInputLayout);
     }
 
     VOID LoadVertices()
     {
         std::vector<VERTEX> vertices = {
-            {DirectX::XMFLOAT3(0.0f, 0.5f, 0.0f), DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f)},
-            {DirectX::XMFLOAT3(0.45f, -0.5, 0.0f), DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f)},
-            {DirectX::XMFLOAT3(-0.45f, -0.5f, 0.0f), DirectX::XMFLOAT3(0.0f, 0.0f, 1.0f)}
+            { DirectX::XMFLOAT3(-0.5f, 0.5f, 0.0f), DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f) },
+            { DirectX::XMFLOAT3(0.5f, -0.5, 0.0f), DirectX::XMFLOAT3(1.0f, .0f, 0.0f) },
+            { DirectX::XMFLOAT3(-0.5f, -0.5f, 0.0f), DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f) },
+
+            { DirectX::XMFLOAT3(-0.5f, 0.5f, 0.0f), DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f) },
+            { DirectX::XMFLOAT3(0.5f, 0.5, 0.0f), DirectX::XMFLOAT3(1.0f, .0f, 0.0f) },
+            { DirectX::XMFLOAT3(0.5f, -0.5f, 0.0f), DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f) },
         };
 
         D3D11_BUFFER_DESC buffer_desc;
@@ -109,44 +96,63 @@ public:
 
     VOID InitShaders()
     {
-        D3DCompileFromFile(
-            TEXT("Shaders/VertexShader.hlsl"),
-            NULL,
-            NULL,
-            "VShader",
-            "vs_4_0",
-            0,
-            0,
-            &m_pBlobVS,
-            NULL);
+        std::fstream fstrVertex, fstrPixel;
+        size_t bytesRead;
+        char *buffer;
 
-        D3DCompileFromFile(
-            TEXT("Shaders/PixelShader.hlsl"),
-            NULL,
-            NULL,
-            "PShader",
-            "ps_4_0",
-            0,
-            0,
-            &m_pBlobPS,
-            NULL);
+        fstrVertex.open("../bin/Debug-x64/DirectX/VertexShader.cso", std::fstream::in | std::fstream::binary);
+        fstrPixel.open("../bin/Debug-x64/DirectX/PixelShader.cso", std::fstream::in | std::fstream::binary);
+
+        fstrVertex.seekg(0, fstrVertex.end);
+        bytesRead = fstrVertex.tellg();
+        fstrVertex.seekg(0, fstrVertex.beg);
+
+        buffer = new char[bytesRead];
+        fstrVertex.read(buffer, bytesRead);
 
         m_pDevice->CreateVertexShader(
-            m_pBlobVS->GetBufferPointer(),
-            m_pBlobVS->GetBufferSize(),
-            NULL,
-            &m_pVertexShader);
+            buffer,
+            bytesRead,
+            nullptr,
+            &m_pVertexShader
+        );
+
+        std::vector<D3D11_INPUT_ELEMENT_DESC> inputElementDesc = {
+            { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+            { "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+        };
+
+        m_pDevice->CreateInputLayout(
+            inputElementDesc.data(),
+            static_cast<UINT>(inputElementDesc.size()),
+            buffer,
+            bytesRead,
+            &m_pInputLayout);
+
+        delete[] buffer;
+
+        m_pDeviceContext->IASetInputLayout(m_pInputLayout);
+
+        fstrVertex.close();
+
+        fstrPixel.seekg(0, fstrPixel.end);
+        bytesRead = fstrPixel.tellg();
+        fstrPixel.seekg(0, fstrPixel.beg);
+
+        buffer = new char[bytesRead];
+        fstrPixel.read(buffer, bytesRead);
+        fstrPixel.close();
 
         m_pDevice->CreatePixelShader(
-            m_pBlobPS->GetBufferPointer(),
-            m_pBlobPS->GetBufferSize(),
+            buffer,
+            bytesRead,
             NULL,
             &m_pPixelShader);
 
+        delete[] buffer;
+
         m_pDeviceContext->VSSetShader(m_pVertexShader, NULL, 0);
         m_pDeviceContext->PSSetShader(m_pPixelShader, NULL, 0);
-
-        m_pDeviceContext->IASetInputLayout(m_pInputLayout);
 
         return;
     }

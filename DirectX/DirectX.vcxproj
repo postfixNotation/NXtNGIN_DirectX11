@@ -20,7 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Gfx\Gfx.cpp" />
-    <ClCompile Include="Quelle.cpp" />
     <ClCompile Include="Utils\Utils.cpp" />
     <ClCompile Include="Window\BaseWindow.cpp" />
     <ClCompile Include="EntryPoint.cpp" />
